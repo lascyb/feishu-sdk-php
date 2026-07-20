@@ -32,17 +32,43 @@ class Client
     }
 
     /**
-     * request 执行飞书 OpenAPI 请求
+     * request 执行飞书 OpenAPI 请求（使用 tenant_access_token）
      * @param RequestInterface $request 请求对象
      * @return Response
      */
     public function request(RequestInterface $request)
     {
-        $token = $this->auth->getTenantAccessToken();
+        return $this->doRequest($request, $this->auth->getTenantAccessToken());
+    }
+
+    /**
+     * requestWithUserAccessToken 使用 user_access_token 执行请求（如获取登录用户信息）
+     * @param RequestInterface $request 请求对象
+     * @param string $userAccessToken 用户 access_token
+     * @return Response
+     */
+    public function requestWithUserAccessToken(RequestInterface $request, string $userAccessToken)
+    {
+        $token = trim($userAccessToken);
+        if ($token === '') {
+            throw new \InvalidArgumentException('user_access_token 不能为空');
+        }
+
+        return $this->doRequest($request, $token);
+    }
+
+    /**
+     * doRequest 携带指定 Bearer token 执行请求
+     * @param RequestInterface $request 请求对象
+     * @param string $accessToken access_token
+     * @return Response
+     */
+    private function doRequest(RequestInterface $request, string $accessToken)
+    {
         $url = $this->buildUrl($request->getPath(), $request->getQuery());
 
         $headers = array_merge([
-            'Authorization: Bearer ' . $token,
+            'Authorization: Bearer ' . $accessToken,
             'Content-Type: application/json; charset=utf-8',
         ], $this->formatHeaders($request->getHeaders()));
 
