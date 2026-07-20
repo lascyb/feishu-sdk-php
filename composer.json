@@ -1,0 +1,37 @@
+{
+  "name": "lascyb/feishu-sdk-php",
+  "description": "飞书 OpenAPI / Webhook PHP SDK",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "feishu",
+    "lark",
+    "sdk",
+    "openapi"
+  ],
+  "authors": [
+    {
+      "name": "lascyb",
+      "homepage": "https://github.com/lascyb"
+    }
+  ],
+  "homepage": "https://github.com/lascyb/feishu-sdk-php",
+  "support": {
+    "issues": "https://github.com/lascyb/feishu-sdk-php/issues",
+    "source": "https://github.com/lascyb/feishu-sdk-php"
+  },
+  "require": {
+    "php": ">=8.1",
+    "ext-curl": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "feishu\\": "src/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "stable"
+}
