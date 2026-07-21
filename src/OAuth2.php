@@ -2,6 +2,8 @@
 
 namespace feishu;
 
+use feishu\Core\TokenManager;
+
 /**
  * OAuth2 飞书网页应用授权登录（authorization_code / refresh_token / PKCE）
  * 文档：https://open.feishu.cn/document/common-capabilities/sso/api/obtain-oauth-code
@@ -26,6 +28,9 @@ class OAuth2
     /** @var HttpTransport */
     private $transport;
 
+    /** @var TokenManager|null */
+    private $tokenManager = null;
+
     /**
      * __construct 初始化 OAuth2 客户端
      * @param string $clientId 应用 app_id
@@ -34,6 +39,7 @@ class OAuth2
      * @param string $authUrl 授权页地址
      * @param string $tokenUrl 换 token 地址
      * @param HttpTransport|null $transport HTTP 传输
+     * @param TokenManager|null $tokenManager 可选注入 TokenManager
      */
     public function __construct(
         string $clientId,
@@ -41,7 +47,8 @@ class OAuth2
         string $redirectUri,
         string $authUrl = 'https://open.feishu.cn/open-apis/authen/v1/authorize',
         string $tokenUrl = 'https://open.feishu.cn/open-apis/authen/v2/oauth/token',
-        ?HttpTransport $transport = null
+        ?HttpTransport $transport = null,
+        ?TokenManager $tokenManager = null
     ) {
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
@@ -49,6 +56,7 @@ class OAuth2
         $this->authUrl = $authUrl;
         $this->tokenUrl = $tokenUrl;
         $this->transport = $transport ?: new HttpTransport();
+        $this->tokenManager = $tokenManager;
     }
 
     /**
@@ -186,5 +194,13 @@ class OAuth2
         $hash = hash('sha256', $codeVerifier, true);
 
         return rtrim(strtr(base64_encode($hash), '+/', '-_'), '=');
+    }
+
+    /**
+     * 注入 TokenManager（可选）
+     */
+    public function setTokenManager(TokenManager $tm): void
+    {
+        $this->tokenManager = $tm;
     }
 }
