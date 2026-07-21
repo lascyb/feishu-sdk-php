@@ -1,95 +1,33 @@
 <?php
 
-// Update Auth to optionally use TokenManager (PSR-16 aware)
+/*
+ * Deprecated compatibility shim.
+ * The Auth functionality has been moved to feishu\Core\TokenManager.
+ * This class remains to preserve backward compatibility for a short period.
+ */
 
 namespace feishu;
 
+use feishu\Core\Config as CoreConfig;
 use feishu\Core\TokenManager;
+use Psr\SimpleCache\CacheInterface;
 
-/**
- * Auth 飞书 tenant_access_token 管理
- */
 class Auth
 {
-    /** @var string */
-    private $appId;
+    private ?TokenManager $tokenManager = null;
 
-    /** @var string */
-    private $appSecret;
-
-    /** @var string */
-    private $baseUrl;
-
-    /** @var HttpTransport */
-    private $transport;
-
-    /** @var string */
-    private $token = '';
-
-    /** @var int */
-    private $expireAt = 0;
-
-    /** @var TokenManager|null */
-    private $tokenManager = null;
-
-    /**
-     * __construct 初始化应用凭证
-     * @param string $appId 应用 app_id
-     * @param string $appSecret 应用 app_secret
-     * @param string $baseUrl OpenAPI 根地址
-     * @param HttpTransport|null $transport HTTP 传输
-     * @param TokenManager|null $tokenManager 可选的 TokenManager（优先使用）
-     */
-    public function __construct(string $appId, string $appSecret, string $baseUrl = 'https://open.feishu.cn/open-apis', ?HttpTransport $transport = null, ?TokenManager $tokenManager = null)
+    public function __construct(string $appId, string $appSecret, string $baseUrl = 'https://open.feishu.cn/open-apis', ?HttpTransport $transport = null, ?CacheInterface $cache = null)
     {
-        $this->appId = $appId;
-        $this->appSecret = $appSecret;
-        $this->baseUrl = rtrim($baseUrl, '/');
-        $this->transport = $transport ?: new HttpTransport();
-        $this->tokenManager = $tokenManager;
+        $config = new CoreConfig($appId, $appSecret, $baseUrl);
+        $this->tokenManager = new TokenManager($config, $transport ?: new HttpTransport(), $cache);
     }
 
     /**
-     * getTenantAccessToken 获取 tenant_access_token（带进程内缓存或通过 TokenManager）
-     * @return string
+     * Deprecated: use TokenManager->getTenantAccessToken() instead.
      */
     public function getTenantAccessToken()
     {
-        if ($this->tokenManager !== null) {
-            return $this->tokenManager->getTenantAccessToken();
-        }
-
-        if ($this->token !== '' && $this->expireAt > time() + 60) {
-            return $this->token;
-        }
-
-        $url = $this->baseUrl . '/auth/v3/tenant_access_token/internal';
-        $body = json_encode([
-            'app_id' => $this->appId,
-            'app_secret' => $this->appSecret,
-        ], JSON_UNESCAPED_UNICODE);
-
-        $raw = $this->transport->request('POST', $url, [
-            'Content-Type: application/json; charset=utf-8',
-        ], $body);
-
-        $result = json_decode($raw, true);
-        if (!is_array($result) || (int)($result['code'] ?? -1) !== 0) {
-            throw new FeishuException(
-                '获取 tenant_access_token 失败：' . ($result['msg'] ?? $raw),
-                (int)($result['code'] ?? 0),
-                $raw
-            );
-        }
-
-        $this->token = (string)($result['tenant_access_token'] ?? '');
-        $expire = (int)($result['expire'] ?? 7200);
-        $this->expireAt = time() + max($expire - 120, 60);
-
-        if ($this->token === '') {
-            throw new FeishuException('获取 tenant_access_token 失败：token 为空', 0, $raw);
-        }
-
-        return $this->token;
+        trigger_error('feishu\\Auth is deprecated, use feishu\\Core\\TokenManager instead', E_USER_DEPRECATED);
+        return $this->tokenManager->getTenantAccessToken();
     }
 }

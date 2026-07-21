@@ -3,14 +3,20 @@
 namespace feishu;
 
 use feishu\Contract\RequestInterface;
+use feishu\Core\Config as CoreConfig;
+use feishu\Core\TokenManager;
 
 /**
  * Client 飞书 OpenAPI 客户端（统一 request 入口，HTTP 方法由 Request 定义）
+ *
+ * 兼容构造方式：
+ * - new Client($appId, $appSecret, $baseUrl = null)
+ * - new Client($coreConfig)
  */
 class Client
 {
-    /** @var Auth */
-    private $auth;
+    /** @var TokenManager */
+    private $tokenManager;
 
     /** @var HttpTransport */
     private $transport;
@@ -20,15 +26,22 @@ class Client
 
     /**
      * __construct 初始化客户端
-     * @param string $appId 应用 app_id
-     * @param string $appSecret 应用 app_secret
+     * @param mixed $appIdOrConfig 应用 app_id 或 Core\Config 实例
+     * @param string|null $appSecret 应用 app_secret（当传入 Core\Config 时可省略）
      * @param string $baseUrl OpenAPI 根地址
      */
-    public function __construct($appId, $appSecret, $baseUrl = 'https://open.feishu.cn/open-apis')
+    public function __construct($appIdOrConfig, $appSecret = null, $baseUrl = 'https://open.feishu.cn/open-apis')
     {
-        $this->baseUrl = rtrim((string)$baseUrl, '/');
         $this->transport = new HttpTransport();
-        $this->auth = new Auth($appId, $appSecret, $this->baseUrl, $this->transport);
+
+        if (is_object($appIdOrConfig) && $appIdOrConfig instanceof CoreConfig) {
+            $config = $appIdOrConfig;
+        } else {
+            $config = new CoreConfig((string)$appIdOrConfig, (string)$appSecret, $baseUrl);
+        }
+
+        $this->baseUrl = $config->baseUrl;
+        $this->tokenManager = new TokenManager($config, $this->transport);
     }
 
     /**
@@ -38,7 +51,7 @@ class Client
      */
     public function request(RequestInterface $request)
     {
-        return $this->doRequest($request, $this->auth->getTenantAccessToken());
+        return $this->doRequest($request, $this->tokenManager->getTenantAccessToken());
     }
 
     /**
@@ -102,7 +115,7 @@ class Client
      */
     private function buildUrl($path, array $query)
     {
-        $url = $this->baseUrl . $path;
+        $url = rtrim($this->baseUrl, '/') . $path;
         if (empty($query)) {
             return $url;
         }
