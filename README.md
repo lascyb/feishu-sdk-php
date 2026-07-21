@@ -1,4 +1,4 @@
-# lascyb/feishu-sdk-php
+# feishu/sdk-php
 
 飞书（Lark）OpenAPI / 自定义机器人 Webhook PHP SDK。
 
@@ -7,7 +7,7 @@
 ## 安装
 
 ```bash
-composer require lascyb/feishu-sdk-php
+composer require feishu/sdk-php
 ```
 
 ## 快速使用
@@ -20,6 +20,33 @@ $client = new Client($appId, $appSecret);
 
 $response = $client->request(new MessagesCreateRequest(/* ... */));
 $data = $response->data();
+```
+
+任意接口（SDK 未封装时）：
+
+```php
+use feishu\AnyRequest;
+use feishu\Client;
+
+$client = new Client($appId, $appSecret);
+
+// GET
+$response = $client->request(AnyRequest::get('/contact/v3/users/' . $userId, [
+    'user_id_type' => 'open_id',
+]));
+
+// POST
+$response = $client->request(AnyRequest::post(
+    '/im/v1/messages',
+    [
+        'receive_id' => $openId,
+        'msg_type' => 'text',
+        'content' => json_encode(['text' => 'hello'], JSON_UNESCAPED_UNICODE),
+    ],
+    ['receive_id_type' => 'open_id']
+));
+
+// 或直接构造：new AnyRequest('PATCH', '/path', $query, $body)
 ```
 
 Webhook 机器人：
