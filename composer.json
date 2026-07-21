@@ -2,7 +2,7 @@
   "name": "feishu/sdk",
   "description": "飞书 OpenAPI / Webhook PHP SDK",
   "type": "library",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "license": "MIT",
   "keywords": [
     "feishu",
@@ -25,7 +25,8 @@
     "php": ">=8.1",
     "ext-curl": "*",
     "ext-json": "*",
-    "psr/simple-cache": "^1.0 || ^2.0 || ^3.0"
+    "psr/simple-cache": "^1.0 || ^2.0 || ^3.0",
+    "predis/predis": "^2.1"
   },
   "autoload": {
     "psr-4": {

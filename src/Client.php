@@ -45,6 +45,14 @@ class Client
     }
 
     /**
+     * Allow injection of a custom TokenManager (e.g. with Redis cache).
+     */
+    public function setTokenManager(TokenManager $tm): void
+    {
+        $this->tokenManager = $tm;
+    }
+
+    /**
      * request 执行飞书 OpenAPI 请求（使用 tenant_access_token）
      * @param RequestInterface $request 请求对象
      * @return Response
