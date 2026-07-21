@@ -1,4 +1,4 @@
-# feishu/sdk-php
+# lascyb/feishu-sdk-php
 
 飞书（Lark）OpenAPI / 自定义机器人 Webhook PHP SDK。
 
@@ -7,7 +7,7 @@
 ## 安装
 
 ```bash
-composer require feishu/sdk-php
+composer require lascyb/feishu-sdk-php
 ```
 
 ## 快速使用
