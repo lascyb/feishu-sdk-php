@@ -10,6 +10,15 @@ class HttpTransport
     /** @var string */
     private $lastRawResponse = '';
 
+    /** @var int 连接超时（秒） */
+    private $connectTimeout = 30;
+
+    /** @var int 总超时（秒） */
+    private $timeout = 60;
+
+    /** @var int 可重试错误的最大尝试次数 */
+    private $maxAttempts = 3;
+
     /**
      * getLastRawResponse 获取最后一次原始响应
      * @return string
@@ -29,30 +38,54 @@ class HttpTransport
      */
     public function request($method, $url, array $headers = [], $body = null)
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        $lastError = '';
+        for ($attempt = 1; $attempt <= $this->maxAttempts; $attempt++) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 
-        if ($body !== null && $body !== '') {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-        }
+            if ($body !== null && $body !== '') {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+            }
 
-        $res = curl_exec($ch);
-        $this->lastRawResponse = $res === false ? '' : (string)$res;
+            $res = curl_exec($ch);
+            $this->lastRawResponse = $res === false ? '' : (string) $res;
 
-        if ($res === false) {
-            $error = curl_error($ch);
+            if ($res !== false) {
+                unset($ch);
+
+                return $this->lastRawResponse;
+            }
+
+            $lastError = curl_error($ch);
             unset($ch);
-            throw new FeishuException('HTTP 请求失败：' . $error);
+
+            if ($attempt >= $this->maxAttempts || !$this->isRetryableTransportError($lastError)) {
+                break;
+            }
+
+            usleep(500000 * $attempt);
         }
 
-        unset($ch);
+        throw new FeishuException('HTTP 请求失败：' . $lastError);
+    }
 
-        return $this->lastRawResponse;
+    /**
+     * isRetryableTransportError DNS/连接类瞬时错误可重试
+     */
+    private function isRetryableTransportError(string $error): bool
+    {
+        $lower = strtolower($error);
+
+        return str_contains($lower, 'timed out')
+            || str_contains($lower, 'resolving')
+            || str_contains($lower, 'could not resolve')
+            || str_contains($lower, 'connection refused')
+            || str_contains($lower, 'connection reset');
     }
 }
