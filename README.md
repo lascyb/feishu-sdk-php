@@ -22,6 +22,19 @@ $response = $client->request(new MessagesCreateRequest(/* ... */));
 $data = $response->data();
 ```
 
+通讯录 contact v3（部门与用户）：
+
+```php
+use feishu\open_apis\contact\v3\departments\children\ChildrenListRequest;
+use feishu\open_apis\contact\v3\users\find_by_department\FindByDepartmentGetRequest;
+
+// 获取子部门列表（根部门 department_id 为 "0"）
+$response = $client->request(new ChildrenListRequest('0', pageSize: 50));
+
+// 获取部门直属用户列表
+$response = $client->request(new FindByDepartmentGetRequest('od-xxx', pageSize: 50));
+```
+
 任意接口（SDK 未封装时）：
 
 ```php
