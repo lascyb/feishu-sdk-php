@@ -4,6 +4,8 @@
 
 仓库：[https://github.com/lascyb/feishu-sdk-php](https://github.com/lascyb/feishu-sdk-php)
 
+已封装 OpenAPI 接口清单见 [docs/implemented-apis.md](docs/implemented-apis.md)。
+
 ## 安装
 
 ```bash
