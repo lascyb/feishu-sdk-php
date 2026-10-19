@@ -37,6 +37,27 @@ $response = $client->request(new ChildrenListRequest('0', pageSize: 50));
 $response = $client->request(new FindByDepartmentGetRequest('od-xxx', pageSize: 50));
 ```
 
+多维表格记录：
+
+```php
+use feishu\open_apis\bitable\v1\apps\tables\records\batch_create\BatchCreateCreateRequest;
+use feishu\open_apis\bitable\v1\apps\tables\records\batch_delete\BatchDeleteDeleteRequest;
+use feishu\open_apis\bitable\v1\apps\tables\records\search\SearchSearchRequest;
+
+$response = $client->request(new BatchCreateCreateRequest('app_token', 'tbl_xxx', [
+    ['fields' => ['标题' => '示例']],
+]));
+
+$response = $client->request(new SearchSearchRequest('app_token', 'tbl_xxx', [
+    'conjunction' => 'and',
+    'conditions' => [
+        ['field_name' => '标题', 'operator' => 'is', 'value' => ['示例']],
+    ],
+], pageSize: 20));
+
+$client->request(new BatchDeleteDeleteRequest('app_token', 'tbl_xxx', ['rec_xxx']));
+```
+
 任意接口（SDK 未封装时）：
 
 ```php

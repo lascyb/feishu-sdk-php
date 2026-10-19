@@ -2,7 +2,7 @@
 
 本文档汇总 `src/open_apis` 下已封装的 Request 类，便于查阅与选用。
 
-**共计 22 个接口**
+**共计 26 个接口**
 
 ## 使用方式
 
@@ -24,6 +24,7 @@ $response = $client->request(new MessagesCreateRequest(/* ... */));
 - [即时消息 (im)](#im)
 - [审批 (approval)](#approval)
 - [电子表格 (sheets)](#sheets)
+- [多维表格 (bitable)](#bitable)
 
 <a id="authen"></a>
 
@@ -168,5 +169,30 @@ $response = $client->request(new MessagesCreateRequest(/* ... */));
 | `feishu\open_apis\sheets\v2\spreadsheets\sheets_batch_update\SheetsBatchUpdateUpdateRequest` | `sheets/v2/spreadsheets/sheets_batch_update/SheetsBatchUpdateUpdateRequest.php` |
 | `feishu\open_apis\sheets\v2\spreadsheets\values_append\ValuesAppendInsertRequest` | `sheets/v2/spreadsheets/values_append/ValuesAppendInsertRequest.php` |
 | `feishu\open_apis\sheets\v3\spreadsheets\sheets\SheetsGetRequest` | `sheets/v3/spreadsheets/sheets/SheetsGetRequest.php` |
+
+</details>
+
+<a id="bitable"></a>
+
+## 多维表格 (bitable)
+
+| 类名 | 说明 | 方法 | 路径 | 文档 |
+|------|------|------|------|------|
+| `BatchCreateCreateRequest` | 新增多条记录 | POST | `/bitable/v1/apps/:app_token/tables/:table_id/records/batch_create` | [链接](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/batch_create) |
+| `BatchUpdateUpdateRequest` | 更新多条记录 | POST | `/bitable/v1/apps/:app_token/tables/:table_id/records/batch_update` | [链接](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/batch_update) |
+| `BatchDeleteDeleteRequest` | 删除多条记录 | POST | `/bitable/v1/apps/:app_token/tables/:table_id/records/batch_delete` | [链接](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/batch_delete) |
+| `SearchSearchRequest` | 查询记录 | POST | `/bitable/v1/apps/:app_token/tables/:table_id/records/search` | [链接](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/search) |
+
+命名空间前缀：`feishu\open_apis\bitable`
+
+<details>
+<summary>完整类名与源文件</summary>
+
+| 完整类名 | 源文件 |
+|----------|--------|
+| `feishu\open_apis\bitable\v1\apps\tables\records\batch_create\BatchCreateCreateRequest` | `bitable/v1/apps/tables/records/batch_create/BatchCreateCreateRequest.php` |
+| `feishu\open_apis\bitable\v1\apps\tables\records\batch_update\BatchUpdateUpdateRequest` | `bitable/v1/apps/tables/records/batch_update/BatchUpdateUpdateRequest.php` |
+| `feishu\open_apis\bitable\v1\apps\tables\records\batch_delete\BatchDeleteDeleteRequest` | `bitable/v1/apps/tables/records/batch_delete/BatchDeleteDeleteRequest.php` |
+| `feishu\open_apis\bitable\v1\apps\tables\records\search\SearchSearchRequest` | `bitable/v1/apps/tables/records/search/SearchSearchRequest.php` |
 
 </details>
